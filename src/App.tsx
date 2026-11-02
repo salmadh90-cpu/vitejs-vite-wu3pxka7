@@ -138,6 +138,7 @@ function App() {
   const [recherche, setRecherche] = useState('')
   const [reference, setReference] = useState('')
   const [serie, setSerie] = useState('')
+  const [seriesSupplementaires, setSeriesSupplementaires] = useState<string[]>([])
   const [numeroFacture, setNumeroFacture] = useState('')
   const [cameraOuverte, setCameraOuverte] = useState(false)
 
@@ -297,7 +298,18 @@ function App() {
               p_reference: modele || null,
               p_numero_facture: type === 'Sortie' ? facturePropre : null
             })
-            if (error) throw error
+            if (error) {
+              alert(
+                'Erreur Supabase : ' +
+                JSON.stringify({
+                  message: error.message,
+                  details: error.details,
+                  hint: error.hint,
+                  code: error.code
+                }, null, 2)
+              )
+              throw error
+            }
             setSerie('')
             setReference('')
             if (type === 'Entrée') setNumeroFacture('')
@@ -305,7 +317,17 @@ function App() {
             alert(type === 'Entrée' ? 'Entrée enregistrée avec succès.' : 'Sortie enregistrée avec succès.')
       
           } catch (e) {
-            alert('Erreur inattendue : ' + String(e))
+            console.error('Erreur complète :', e)
+            console.log('TYPE ERREUR :', typeof e)
+            console.log('MESSAGE :', (e as any)?.message)
+            console.log('DETAILS :', (e as any)?.details)
+            console.log('CODE :', (e as any)?.code)
+alert(
+  'Erreur inattendue : ' +
+  (e instanceof Error
+    ? e.message
+    : JSON.stringify(e, null, 2))
+)
           } finally {
             setOperation(false)
           }
@@ -725,14 +747,75 @@ DHOLLANDIA MAROC
             }}
           />
 
+{seriesSupplementaires.map((numero, index) => (
+  <div key={index} style={{ marginTop: 12 }}>
+    <label>Numéro de série supplémentaire {index + 2}</label>
+    <div style={{ display: 'flex', gap: 8 }}>
+      <input
+        placeholder="Scanner ou saisir le numéro"
+        value={numero}
+        onChange={e => {
+          setSeriesSupplementaires(anciens =>
+            anciens.map((valeur, i) =>
+              i === index ? e.target.value : valeur
+            )
+          )
+        }}
+      />
+      <button
+        type="button"
+        onClick={() =>
+          setSeriesSupplementaires(anciens =>
+            anciens.filter((_, i) => i !== index)
+          )
+        }
+      >
+        Supprimer
+      </button>
+    </div>
+  </div>
+))}
+
+<button
+  type="button"
+  className="bouton-principal"
+  style={{ marginTop: 12, marginBottom: 12 }}
+  onClick={() =>
+    setSeriesSupplementaires(anciens => [...anciens, ''])
+  }
+>
+  + Ajouter un numéro de série
+</button>
+
           <button
             className="bouton-principal"
             disabled={operation}
-            onClick={() =>
-              executerMouvement(
-                'Sortie', serie, '', numeroFacture
+            onClick={() => {
+              const numeros = [serie, ...seriesSupplementaires]
+                .map(numero => numero.trim())
+                .filter(Boolean)
+            
+              if (numeros.length === 0) {
+                alert('Ajoute au moins un numéro de série.')
+                return
+              }
+            
+              if (numeros.some(numero => !/^[0-9]{8}$/.test(numero))) {
+                alert('Chaque numéro de série doit contenir 8 chiffres.')
+                return
+              }
+            
+              if (new Set(numeros).size !== numeros.length) {
+                alert('Un numéro de série est présent plusieurs fois.')
+                return
+              }
+            
+              alert(
+                `${numeros.length} hayon(s) prêt(s) pour la sortie avec la facture : ${
+                  numeroFacture.trim() || 'Sans facture'
+                }`
               )
-            }
+            }}
           >
             {operation
               ? 'Enregistrement...'
