@@ -790,7 +790,7 @@ DHOLLANDIA MAROC
           <button
             className="bouton-principal"
             disabled={operation}
-            onClick={() => {
+            onClick={async () => {
               const numeros = [serie, ...seriesSupplementaires]
                 .map(numero => numero.trim())
                 .filter(Boolean)
@@ -810,11 +810,39 @@ DHOLLANDIA MAROC
                 return
               }
             
-              alert(
-                `${numeros.length} hayon(s) prêt(s) pour la sortie avec la facture : ${
-                  numeroFacture.trim() || 'Sans facture'
-                }`
-              )
+              try {
+                setOperation(true)
+              
+                const facture = numeroFacture.trim()
+              
+                // Enregistrer chaque hayon dans Supabase
+                for (const num of numeros) {
+                  const { error } = await supabase.rpc('mouvement', {
+                    p_type: 'Sortie',
+                    p_serie: num,
+                    p_reference: null,
+                    p_numero_facture: facture || null,
+                  })
+              
+                  if (error) {
+                    throw new Error(
+                      `Erreur pour le hayon ${num} : ${error.message}`
+                    )
+                  }
+                }
+              
+                await chargerDonnees()
+              
+                setSerie('')
+                setSeriesSupplementaires([])
+                setNumeroFacture('')
+              
+                alert(`${numeros.length} hayon(s) sorti(s) avec succès.`)
+              } catch (error: any) {
+                alert(error?.message || 'Erreur lors de la sortie.')
+              } finally {
+                setOperation(false)
+              }
             }}
           >
             {operation
