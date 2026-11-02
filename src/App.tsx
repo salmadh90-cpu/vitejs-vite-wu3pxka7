@@ -283,7 +283,7 @@ function App() {
             return
           }
       
-          if (type === 'Sortie' && !facturePropre) {
+          if (type === 'Sortie' && !facturePropre && profil?.role !== 'admin') {
             alert('Le numéro de facture est obligatoire.')
             return
           }
@@ -686,10 +686,14 @@ DHOLLANDIA MAROC
           <section className="panneau formulaire">
           <h2>Enregistrer une sortie</h2>
           <p>
-            Chaque sortie nécessite un numéro de facture.
+          {profil?.role === 'admin'
+  ? 'Numéro de facture facultatif pour les administrateurs.'
+  : 'Chaque sortie nécessite un numéro de facture.'}
           </p>
 
-          <label>Numéro de facture</label>
+          <label>
+  Numéro de facture {profil?.role === 'admin' ? '(facultatif)' : '(obligatoire)'}
+</label>
           <input
             placeholder="Exemple : FA2611-0001"
             value={numeroFacture}
