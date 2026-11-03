@@ -141,6 +141,11 @@ function App() {
   const [seriesSupplementaires, setSeriesSupplementaires] = useState<string[]>([])
   const [numeroFacture, setNumeroFacture] = useState('')
   const [cameraOuverte, setCameraOuverte] = useState(false)
+  
+  const [utilisateurMotDePasse, setUtilisateurMotDePasse] = useState(
+    'facturation@dhollandia.ma'
+  )
+  const [nouveauMotDePasse, setNouveauMotDePasse] = useState('')
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data, error }) => {
@@ -257,8 +262,45 @@ function App() {
           }
         }
       
-        const deconnexion = async () => {
-          const { error } = await supabase.auth.signOut()
+        const modifierMotDePasse = async () => {
+          if (nouveauMotDePasse.length < 12) {
+            alert('Le mot de passe doit contenir au moins 12 caractères.')
+            return
+          }
+        
+          if (!window.confirm(
+            `Modifier le mot de passe de ${utilisateurMotDePasse} ?`
+          )) return
+        
+          setOperation(true)
+        
+          try {
+            const { data, error } = await supabase.functions.invoke(
+              'admin-reset-password',
+              {
+                body: {
+                  email: utilisateurMotDePasse,
+                  password: nouveauMotDePasse,
+                },
+              }
+            )
+        
+            if (error) throw error
+            if (!data?.success) {
+              throw new Error('Modification non confirmée')
+            }
+        
+            setNouveauMotDePasse('')
+            alert('Mot de passe modifié avec succès.')
+          } catch (e: any) {
+            alert('Erreur : ' + (e?.message || String(e)))
+          } finally {
+            setOperation(false)
+          }
+          }
+          
+          const deconnexion = async () => {
+            const { error } = await supabase.auth.signOut()
           if (error) setErreur(error.message)
         }
       
