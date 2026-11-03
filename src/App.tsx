@@ -541,8 +541,17 @@ Historique
 </button>
 )}
 
+{estAdmin && (
+  <button
+    className={page === 'utilisateurs' ? 'actif' : ''}
+    onClick={() => changerPage('utilisateurs')}
+  >
+    Gestion des utilisateurs
+  </button>
+)}
+
 <button onClick={deconnexion}>
-Déconnexion
+  Déconnexion
 </button>
 </nav>
 
@@ -561,6 +570,7 @@ DHOLLANDIA MAROC
 {page === 'ajouter' && 'Entrée de stock'}
 {page === 'sortie' && 'Sortie de stock'}
 {page === 'historique' && 'Historique'}
+{page === 'utilisateurs' && 'Gestion des utilisateurs'}
 </h1>
 <p>DHOLLANDIA MAROC · Gestion de stock</p>
 </div>
@@ -935,13 +945,56 @@ DHOLLANDIA MAROC
 )}
             </div>
           </section>
-        )}
-      </main>
-    </div>
-  )
-}
+              )}
 
-export default App
+              {page === 'utilisateurs' && estAdmin && (
+                <section className="panneau">
+                  <h2>Gestion des utilisateurs</h2>
+        
+                  <p>Modifier le mot de passe d'un utilisateur</p>
+        
+                  <label>Utilisateur</label>
+                  <select
+                    value={utilisateurMotDePasse}
+                    onChange={e => setUtilisateurMotDePasse(e.target.value)}
+                  >
+                    <option value="atelier@dhollandia.ma">
+                      Mohammed - Entrée de stock
+                    </option>
+                    <option value="facturation@dhollandia.ma">
+                      Hanane - Sortie de stock
+                    </option>
+                    <option value="b.oualhaji@deh.ma">
+                      Bilal - Administrateur
+                    </option>
+                  </select>
+        
+                  <label>Nouveau mot de passe</label>
+                  <input
+                    type="password"
+                    value={nouveauMotDePasse}
+                    onChange={e => setNouveauMotDePasse(e.target.value)}
+                    placeholder="Minimum 12 caractères"
+                  />
+        
+                  <button
+                    type="button"
+                    disabled={operation}
+                    onClick={modifierMotDePasse}
+                  >
+                    {operation
+                      ? 'Modification en cours...'
+                      : 'Modifier le mot de passe'}
+                  </button>
+                </section>
+              )}
+        
+            </main>
+          </div>
+        )
+        }
+        
+        export default App
 
 
   
