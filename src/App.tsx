@@ -930,7 +930,30 @@ DHOLLANDIA MAROC
               <td>{m.type}</td>
               <td>{m.reference}</td>
               <td>{m.serie}</td>
-              <td>{m.numero_facture || '-'}</td>
+              <td>
+  {m.numero_facture || '-'}
+
+  {m.type === 'Sortie' && (
+    <button
+      type="button"
+      style={{ marginLeft: 12 }}
+      onClick={() => {
+        const nouvelleFacture = window.prompt(
+          'Nouveau numéro de facture :',
+          m.numero_facture || ''
+        )
+
+        if (nouvelleFacture === null) return
+
+        alert(
+          'Nouvelle facture saisie : ' + nouvelleFacture
+        )
+      }}
+    >
+      Modifier
+    </button>
+  )}
+</td>
             </tr>
           ))}
         </tbody>
