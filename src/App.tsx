@@ -316,8 +316,8 @@ function App() {
           const modele = ref.trim().toUpperCase()
           const facturePropre = facture.trim()
       
-          if (!/^[0-9]{8}$/.test(num)) {
-            alert('Le numéro de série doit contenir 8 chiffres.')
+          if (!num) {
+            alert('Le numéro de série est obligatoire.')
             return
           }
       
@@ -852,10 +852,7 @@ DHOLLANDIA MAROC
                 return
               }
             
-              if (numeros.some(numero => !/^[0-9]{8}$/.test(numero))) {
-                alert('Chaque numéro de série doit contenir 8 chiffres.')
-                return
-              }
+            
             
               if (new Set(numeros).size !== numeros.length) {
                 alert('Un numéro de série est présent plusieurs fois.')
