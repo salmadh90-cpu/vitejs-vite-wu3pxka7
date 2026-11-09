@@ -937,18 +937,48 @@ DHOLLANDIA MAROC
     <button
       type="button"
       style={{ marginLeft: 12 }}
-      onClick={() => {
-        const nouvelleFacture = window.prompt(
-          'Nouveau numéro de facture :',
-          m.numero_facture || ''
-        )
+      
+onClick={async () => {
+  const nouvelleFacture = window.prompt(
+    'Nouveau numéro de facture :',
+    m.numero_facture || ''
+  )
 
-        if (nouvelleFacture === null) return
+  if (nouvelleFacture === null) return
 
-        alert(
-          'Nouvelle facture saisie : ' + nouvelleFacture
-        )
-      }}
+  const facture = nouvelleFacture.trim()
+
+  if (!facture) {
+    alert('Le numéro de facture ne peut pas être vide.')
+    return
+  }
+
+  if (!window.confirm(
+    `Confirmer la modification de la facture pour le hayon ${m.serie} ?`
+  )) return
+
+  try {
+    const { error } = await supabase.rpc(
+      'modifier_facture_historique',
+      {
+        p_mouvement_id: m.id,
+        p_nouvelle_facture: facture
+      }
+    )
+
+    if (error) throw error
+
+    await chargerDonnees()
+
+    alert('Numéro de facture modifié avec succès.')
+  } catch (error: any) {
+    alert(
+      'Erreur lors de la modification : ' +
+      (error?.message || 'Erreur inconnue')
+    )
+  }
+}}
+
     >
       Modifier
     </button>
